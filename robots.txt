@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ultimatepdftools.vercel.app/sitemap.xml
