@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Tool – Ultimate PDF Tools</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- pdf-lib -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+
+<header class="hero small">
+  <h1 id="toolName">PDF Tool</h1>
+  <p id="toolDesc">Secure, browser-based PDF processing</p>
+  <a href="index.html" class="back-link">← Back to Home</a>
+</header>
+
+<main class="tool-wrapper">
+
+  <!-- ADD FILES -->
+  <div style="text-align:center;">
+    <input
+      type="file"
+      id="pdfFiles"
+      hidden
+      multiple
+      accept="application/pdf,image/*"
+    />
+    <button id="addBtn" class="btn primary">
+      ➕ Add Files
+    </button>
+  </div>
+
+  <!-- TOOL INSTRUCTION (DYNAMIC) -->
+  <p id="toolInstruction" class="status-text" style="margin-top:10px;">
+    Upload your files to start.
+  </p>
+
+  <!-- DRAG & DROP -->
+  <div id="dropZone" class="drop-zone">
+    <strong id="dropText">Drag & Drop files here</strong><br />
+    <small id="dropSubText">PDF or Images • No upload • Secure</small>
+  </div>
+
+  <!-- FILE LIST -->
+  <div id="pdfList" class="pdf-list"></div>
+
+  <!-- TOOL OPTIONS (ROTATE ONLY) -->
+  <div id="toolOptions" style="margin-top:14px; text-align:center;"></div>
+
+  <!-- PROGRESS -->
+  <div class="progress-container" style="display:none;">
+    <div id="progressBar"></div>
+  </div>
+
+  <!-- ACTION BUTTON -->
+  <div style="text-align:center; margin-top:18px;">
+    <button id="mergeBtn" class="btn primary">
+      ▶ Start Processing
+    </button>
+  </div>
+
+  <!-- DOWNLOAD -->
+  <div class="download-area">
+    <a
+      id="downloadLink"
+      class="btn success"
+      style="display:none;"
+      download
+    >
+      ⬇ Download Result
+    </a>
+  </div>
+
+  <!-- STATUS -->
+  <p id="status" class="status-text"></p>
+
+</main>
+
+<script>
+/* ===== DYNAMIC TOOL UI (NO LOGIC CHANGE) ===== */
+const params = new URLSearchParams(window.location.search);
+const tool = params.get("tool") || "merge";
+
+const instruction = document.getElementById("toolInstruction");
+const dropText = document.getElementById("dropText");
+const dropSubText = document.getElementById("dropSubText");
+const toolOptions = document.getElementById("toolOptions");
+
+if (tool === "rotate") {
+  instruction.textContent = "Upload PDF files and choose rotation angle.";
+  dropSubText.textContent = "Only PDF files are supported.";
+
+  toolOptions.innerHTML = `
+    <label style="font-size:14px;color:#475569;">
+      Rotate pages by:
+      <select id="rotationAngle" class="btn" style="margin-left:8px;min-height:42px;">
+        <option value="90">90°</option>
+        <option value="180">180°</option>
+        <option value="270">270°</option>
+      </select>
+    </label>
+  `;
+}
+
+if (tool === "pdf2jpg") {
+  instruction.textContent = "Upload PDF files to convert pages into JPG images.";
+  dropSubText.textContent = "Only PDF files are supported.";
+}
+
+if (tool === "jpg2pdf") {
+  instruction.textContent = "Upload JPG or PNG images to create a PDF.";
+  dropSubText.textContent = "Only image files are supported.";
+}
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
