@@ -182,6 +182,35 @@ document.addEventListener("DOMContentLoaded", () => {
         statusDiv.textContent = "✅ Images converted to PDF!";
       }
 
+      /* ===== PDF → JPG ===== */
+      if (tool === "pdf2jpg") {
+        const file = files[0];
+        const pdfData = new Uint8Array(await file.arrayBuffer());
+
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          canvas.toBlob(blob => {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `page-${i}.jpg`;
+            a.click();
+          }, "image/jpeg");
+        }
+
+        statusDiv.textContent = "✅ PDF converted to JPG images!";
+      }
+
     } catch (err) {
       console.error(err);
       statusDiv.textContent = "❌ Something went wrong. Try again.";
