@@ -9,6 +9,9 @@
 
   <!-- pdf-lib -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+  <!-- pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -115,6 +118,69 @@ if (tool === "jpg2pdf") {
   instruction.textContent = "Upload JPG or PNG images to create a PDF.";
   dropSubText.textContent = "Only image files are supported.";
 }
+</script>
+
+<script>
+// PDF to JPG logic (added code)
+const files = [];
+const statusDiv = document.getElementById("status");
+
+addBtn.onclick = () => pdfFilesInput.click();
+
+pdfFilesInput.onchange = (e) => {
+  files.push(...e.target.files);
+  updateFileList();
+  pdfFilesInput.value = "";
+};
+
+dropZone.ondragover = (e) => {
+  e.preventDefault();
+  dropZone.classList.add("hover");
+};
+
+dropZone.ondragleave = () => dropZone.classList.remove("hover");
+
+dropZone.ondrop = (e) => {
+  e.preventDefault();
+  dropZone.classList.remove("hover");
+  files.push(...e.dataTransfer.files);
+  updateFileList();
+};
+
+mergeBtn.onclick = async () => {
+  if (tool === "pdf2jpg") {
+    if (files.some(f => f.type !== "application/pdf")) {
+      statusDiv.textContent = "❌ Please upload a PDF file only.";
+      return;
+    }
+
+    const file = files[0];
+    const pdfData = new Uint8Array(await file.arrayBuffer());
+
+    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      canvas.toBlob(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `page-${i}.jpg`;
+        a.click();
+      }, "image/jpeg");
+    }
+
+    statusDiv.textContent = "✅ PDF converted to JPG images!";
+  }
+};
 </script>
 
 <script src="script.js"></script>
